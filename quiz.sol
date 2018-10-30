@@ -63,17 +63,23 @@ contract Quiz{
     int32 public round;             //current round of Quiz
     int32 public reward;            //common reward for each correct answer 
     address public addr_host;       //address of the host of the quiz
-    
+    bool quizopen;
     mapping(int32 => player) public p_list;                         //structure to store player information against system generated ID
     mapping(int32 => int32) public q_answers;                       //correct option against each question
     mapping(int32 => mapping(int32 => int32)) public p_answers;     //stores question number => id of player => answer by player
     
+    function get_count_players() public returns (int32)
+    {
+        return no_reg_players;
+    }
     function Quiz(int32 max_players)
     {
         no_of_ques=4;
-        round=1;
+        round=0;
         no_of_players=max_players;
         addr_host=msg.sender;
+        total_fee=0;
+        quizopen=false;
     }
     
     function get_aggr_fee() public returns(int32)
@@ -86,7 +92,7 @@ contract Quiz{
         return 3*aggr_fee;
     }
     
-    function register_player(int32 f) public returns(int)
+    function register_player(int32 f) public returns(int32)
     {
         address addr=msg.sender;
         if(no_reg_players < no_of_players&&addr!=addr_host)
@@ -106,12 +112,14 @@ contract Quiz{
        return -1;
     }
     
-    function set_questions()
+    function set_question(int32 r,int32 answer)
     {
-        q_answers[1] = 1;
-        q_answers[2] = 2;
-        q_answers[3] = 3;
-        q_answers[4] = 4;
+        if(r==(round+1)&&msg.sender==addr_host)
+        {
+            q_answers[r] = answer;
+            round++;
+            quizopen=true;
+        }
     }
     
     function get_answer(int32 q) public returns(int32)
@@ -121,34 +129,32 @@ contract Quiz{
     
     function record_answer(int32 q,int32 ans) 
     {
-       address addr = msg.sender;
-       int32 id=get_id(addr);
-       if(id!=-1)
-            p_answers[q][id] = ans;
+        if(round==q&&quizopen)
+        {
+           int32 id=get_id(msg.sender);
+           if(id!=-1&&p_list[id].flag)
+                p_answers[q][id] = ans;
+        }
     }
-    
     function check_answers()
     {
         aggr_fee=get_aggr_fee();
         reward=set_reward();
-        if(msg.sender==addr_host)
+        if(msg.sender==addr_host&&round<=no_of_ques)
         {
-            while(round<=no_of_ques)
+            int32 ans=get_answer(round);
+            for(int32 i=0;i<no_reg_players;i++)
             {
-                int32 ans=get_answer(round);
-                for(int32 i=0;i<no_reg_players;i++)
+                if(p_list[i].flag&&ans==p_answers[round][i])
                 {
-                    if(p_list[i].flag&&ans==p_answers[round][i])
-                    {
-                      //if player is not eliminated and answer given is correct
-                        p_list[i].reward+=(reward/16);
-                        total_fee-=(reward/16);
-                    }
-                    else//eliminate the player
-                        p_list[i].flag=false;
+                  //if player is not eliminated and answer given is correct
+                    p_list[i].reward+=(reward/16);
+                    total_fee-=(reward/16);
                 }
-                round++;
+                else//eliminate the player
+                    p_list[i].flag=false;
             }
+            quizopen=false;
         }
     }
 }
