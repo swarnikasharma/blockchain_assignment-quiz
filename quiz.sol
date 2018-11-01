@@ -113,6 +113,7 @@ contract Quiz{
     }
     
     function set_question(int32 r,int32 answer)
+    public
     {
         if(r==(round+1)&&msg.sender==addr_host)
         {
@@ -155,6 +156,14 @@ contract Quiz{
                     p_list[i].flag=false;
             }
             quizopen=false;
+        }
+    }
+    function check_player_reward()
+    returns(int32)
+    {
+        int32 id = get_id(msg.sender);
+        if(id!=-1){
+            return p_list[id].reward;
         }
     }
 }
