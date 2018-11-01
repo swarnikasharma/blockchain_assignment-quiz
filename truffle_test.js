@@ -1,6 +1,13 @@
+/*
+BlockChain Assignment 2
+Truffle Testing File
+By:
+1.Awani Rawat       - 20172029
+2.Swarnika Sharma   - 20172117
+3.Aditya Singh Bisht- 20172121
+4.Shubhika Jain     - 20172112
+*/
 var Contract = artifacts.require("Quiz");
-// import {PRIME_NUMBER_Q, NUMBER_OF_ITEMS, TRANSACTION_CONSTANT, BIDDER_JSON} from './constants';
-// constants = require('./constants');
 var assert = require('assert')
 // var account_count = 1;
 // var participation_fees = 10;90
@@ -31,10 +38,16 @@ contract('Quiz',function(accounts){
         });
     }
     const ans=[ [1,2,3,4],[1,2,5,4],[1,6,3,4] ]
-    // Reward for 1st shd be 5 , 2nd is 3, and 3rd 4th
+    
+    /*Reward should be as follows:
+    * Player 1=5
+    * Player 2=3
+    * Player 3=4
+    */
+    
     const rew=[ [1,1,1],[2,2,1],[3,2,1],[4,2,1] ]
     for(let j = 0; j < 4; j++) {
-        it("Check if answers are being recorded and eliminated players not getting reward",async function(){
+        it("Check if answers are being recorded and eliminated players are not getting reward",async function(){
             var instance
             await Contract.deployed({from: n[0]}).then(function(instance_){
                 instance = instance_
