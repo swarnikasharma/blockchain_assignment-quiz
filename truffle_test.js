@@ -12,6 +12,7 @@ contract('Quiz',function(accounts){
     for(i = 0; i < max_players; i++) {
         n[i] = accounts[i];
     }
+    for(j = 0; j < 3; j++) {
         const x = j;
         it("Check if player is getting registered",async function(){
             var instance
@@ -28,5 +29,10 @@ contract('Quiz',function(accounts){
             // console.log("Registered",count1.c[0],count2.c[0])
             assert.equal(count2.c[0], count1.c[0]+1, 'Player is unregistered')
         });
-
+    }
+    const ans=[ [1,2,3,4],[1,2,5,4],[1,6,3,4] ]
+    // Reward for 1st shd be 5 , 2nd is 3, and 3rd 4th
+    const rew=[ [1,1,1],[2,2,1],[3,2,1],[4,2,1] ]
+    
+     
 });
